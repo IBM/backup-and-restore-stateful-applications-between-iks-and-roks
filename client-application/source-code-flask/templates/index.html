@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/images/favicon-16x16.png">
+    <link rel="manifest" href="../static/images/site.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/carbon-components/css/carbon-components.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>Client Application</title>
+</head>
+
+<body>
+    <header class="bx--header" role="banner" aria-label="IBM CODE" data-header>
+        <a class="bx--header__name" href="/" title="">
+            <span class="bx--header__name--prefix">
+                IBM
+                &nbsp;
+            </span>
+            Code Pattern
+        </a>
+    </header>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="bx--grid">
+        <div class="bx--row">
+            <div class="bx--col-lg-12">
+                <div class="outside">
+                    <div class="inside">
+                        <h3>Employee Database</h3>
+                        <br>
+                        <div class="bx--data-table-container" data-table>
+                            <!-- Table Header -->
+                            <div class="bx--data-table-header">
+                                <h4 class="bx--data-table-header__title">
+                                    <button class="bx--btn bx--btn--sm bx--btn--tertiary" onclick="getCurrentConnection()"
+                                        data-modal-target="#modal-conn">
+                                        Connect
+                                    </button>
+                                </h4>
+                                <p class="bx--data-table-header__description"><br>
+                                    Connection Status: <strong id="connection-status"></strong>
+                                </p>
+                                <p class="bx--data-table-header__description">
+                                    <span id="debug"></span>
+                                </p>
+                            </div>
+                            <!-- End Table Header -->
+
+                            <!-- Toolbar Content -->
+                            <section class="bx--table-toolbar">
+
+                                <div class="bx--toolbar-content">
+
+                                    <!--  Toolbar primary button -->
+                                    <button id="addRecordBtn" class="bx--btn bx--btn--sm bx--btn--primary"
+                                        data-modal-target="#modal-pyu0ribosn">
+                                        Add
+                                        <svg focusable="false" preserveAspectRatio="xMidYMid meet"
+                                            style="will-change: transform;" xmlns="http://www.w3.org/2000/svg"
+                                            class="bx--btn__icon" width="20" height="20" viewBox="0 0 28 28"
+                                            aria-hidden="true">
+                                            <path
+                                                d="M17 15L17 7 15 7 15 15 7 15 7 17 15 17 15 25 17 25 17 17 25 17 25 15 17 15z">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </section>
+                            <!-- End Toolbar Content -->
+
+                            <!-- Table -->
+                            <table class="bx--data-table bx--data-table--sort" id="recordsTable">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <span class="bx--table-header-label">Sl. No.</span>
+                                        </th>
+                                        <th>
+                                            <span class="bx--table-header-label">id</span>
+                                        </th>
+                                        <th>
+                                            <span class="bx--table-header-label">Name</span>
+                                        </th>
+                                        <th>
+                                            <span class="bx--table-header-label">Email ID</span>
+                                        </th>
+                                        <th>
+                                            <span class="bx--table-header-label">Phone No</span>
+                                        </th>
+                                        <th>
+                                            <span class="bx--table-header-label">Address</span>
+                                        </th>
+                                        <th>
+                                            <span class="bx--table-header-label"></span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td>
+                                            <div class="bx--skeleton__text"></div>
+                                        </td>
+                                        <td>
+                                            <div class="bx--skeleton__text"></div>
+                                        </td>
+                                        <td>
+                                            <div class="bx--skeleton__text"></div>
+                                        </td>
+                                        <td>
+                                            <div class="bx--skeleton__text"></div>
+                                        </td>
+                                        <td>
+                                            <div class="bx--skeleton__text"></div>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <!-- End Table -->
+                        </div>
+                        <!-- Modal Section -->
+
+                        <!-- Input Modal -->
+                        <div data-modal id="modal-pyu0ribosn" class="bx--modal" role="dialog" aria-modal="true"
+                            aria-labelledby="modal-pyu0ribosn-label" aria-describedby="modal-pyu0ribosn-heading"
+                            tabindex="-1">
+                            <div class="bx--modal-container bx--modal-container--s">
+                                <div class="bx--modal-header">
+                                    <p class="bx--modal-header__label bx--type-delta" id="modal-pyu0ribosn-label">
+                                    </p>
+                                    <p class="bx--modal-header__heading bx--type-beta" id="add-edit">
+                                        Add New Employee</p>
+                                    <button class="bx--modal-close" type="button" data-modal-close
+                                        aria-label="close modal">
+                                        <svg focusable="false" preserveAspectRatio="xMidYMid meet"
+                                            style="will-change: transform;" xmlns="http://www.w3.org/2000/svg"
+                                            class="bx--modal-close__icon" width="16" height="16" viewBox="0 0 16 16"
+                                            aria-hidden="true">
+                                            <path
+                                                d="M12 4.7L11.3 4 8 7.3 4.7 4 4 4.7 7.3 8 4 11.3 4.7 12 8 8.7 11.3 12 12 11.3 8.7 8z">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Note: Modals with content that scrolls, at any viewport, requires `tabindex="0"` on the `bx--modal-content` element -->
+
+                                <div class="bx--modal-content bx--modal-content--with-form">
+                                    <div class="bx--form-item">
+                                        <label for="name" class="bx--label">Name</label>
+                                        <input id="name" type="name" class="bx--text-input" placeholder="Enter Name"
+                                            data-modal-primary-focus required>
+                                    </div>
+                                    <br>
+                                    <div class="bx--form-item">
+                                        <label for="email" class="bx--label">Email</label>
+                                        <input id="email" type="email" class="bx--text-input"
+                                            placeholder="Enter Email ID" required>
+                                    </div>
+                                    <br>
+                                    <div class="bx--form-item">
+                                        <label for="phoneno" class="bx--label">Phone No</label>
+                                        <input id="phoneno" type="number" class="bx--text-input"
+                                            placeholder="Enter Phone No" required>
+                                    </div>
+                                    <br>
+                                    <div class="bx--form-item">
+                                        <label for="address" class="bx--label">Address</label>
+                                        <input id="address" type="address" class="bx--text-input"
+                                            placeholder="Enter Address" required>
+                                    </div>
+                                    <br>
+
+                                </div>
+                                <div class="bx--modal-content--overflow-indicator"></div>
+
+                                <div class="bx--modal-footer">
+                                    <button class="bx--btn bx--btn--secondary" type="button"
+                                        data-modal-close>Cancel</button>
+                                    <button class="bx--btn bx--btn--primary" id="submitButton" type="button"
+                                        data-modal-close>Submit</button>
+                                </div>
+                            </div>
+                            <!-- Note: focusable span allows for focus wrap feature within Modals -->
+                            <span tabindex="0"></span>
+                        </div>
+                        <button style="display: none;" id="showInfo" class="bx--btn bx--btn--primary" type="button"
+                            data-modal-target="#modal-be0x6e8dukq">Show
+                            modal</button>
+                        <!-- Info Modal -->
+                        <div data-modal id="modal-be0x6e8dukq" class="bx--modal " role="dialog" aria-modal="true"
+                            aria-labelledby="modal-be0x6e8dukq-label" aria-describedby="modal-be0x6e8dukq-heading"
+                            tabindex="-1">
+                            <div class="bx--modal-container bx--modal-container--xs">
+                                <div class="bx--modal-header">
+                                    <p class="bx--modal-header__label bx--type-delta" id="modal-be0x6e8dukq-label">
+                                    </p>
+                                    <p class="bx--modal-header__heading bx--type-beta" id="modal-be0x6e8dukq-heading">
+                                        Message</p>
+                                    <button class="bx--modal-close" type="button" data-modal-close
+                                        onclick="location.reload()" aria-label="close modal" data-modal-primary-focus>
+                                        <svg focusable="false" preserveAspectRatio="xMidYMid meet"
+                                            style="will-change: transform;" xmlns="http://www.w3.org/2000/svg"
+                                            class="bx--modal-close__icon" width="16" height="16" viewBox="0 0 16 16"
+                                            aria-hidden="true">
+                                            <path
+                                                d="M12 4.7L11.3 4 8 7.3 4.7 4 4 4.7 7.3 8 4 11.3 4.7 12 8 8.7 11.3 12 12 11.3 8.7 8z">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Note: Modals with content that scrolls, at any viewport, requires `tabindex="0"` on the `bx--modal-content` element -->
+
+                                <div class="bx--modal-content">
+                                    <p id="message">Please wait ...</p><br>
+
+                                </div>
+                                <div class="bx--modal-content--overflow-indicator"></div>
+
+                            </div>
+                            <!-- Note: focusable span allows for focus wrap feature within Modals -->
+                            <span tabindex="0"></span>
+                        </div>
+
+                        <!--Connection Modal-->
+                        <div data-modal id="modal-conn" class="bx--modal" role="dialog" aria-modal="true"
+                            aria-labelledby="modal-conn-label" aria-describedby="modal-conn-heading" tabindex="-1">
+                            <div class="bx--modal-container bx--modal-container--s">
+                                <div class="bx--modal-header">
+                                    <p class="bx--modal-header__heading bx--type-beta">
+                                        Enter connection details</p>
+                                    <p class="bx--modal-header__label bx--type-delta" id="modal-conn-label">
+                                        Connect to Databases such as Postgresql, MySQL, Db2, etc</p>
+                                    <button class="bx--modal-close" type="button" data-modal-close
+                                        aria-label="close modal">
+                                        <svg focusable="false" preserveAspectRatio="xMidYMid meet"
+                                            style="will-change: transform;" xmlns="http://www.w3.org/2000/svg"
+                                            class="bx--modal-close__icon" width="16" height="16" viewBox="0 0 16 16"
+                                            aria-hidden="true">
+                                            <path
+                                                d="M12 4.7L11.3 4 8 7.3 4.7 4 4 4.7 7.3 8 4 11.3 4.7 12 8 8.7 11.3 12 12 11.3 8.7 8z">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Note: Modals with content that scrolls, at any viewport, requires `tabindex="0"` on the `bx--modal-content` element -->
+
+                                <div class="bx--modal-content bx--modal-content--with-form">
+                                    <div class="bx--row">
+                                        <div class="bx--col-lg-4">
+                                            <div class="bx--form-item">
+                                                <label for="select-db" class="bx--label">Database</label>
+                                                <div class="bx--select bx--select--inline">
+                                                    <div class="bx--select-input--inline__wrapper">
+                                                        <div class="bx--select-input__wrapper">
+                                                            <select id="select-db" class="bx--select-input" data-modal-primary-focus>
+                                                                <option class="bx--select-option" value="" disabled
+                                                                    selected hidden>
+                                                                    Choose a database
+                                                                </option>
+                                                                <option class="bx--select-option" value="postgresql">
+                                                                    Postgresql
+                                                                </option>
+                                                                <option class="bx--select-option" value="mysql">
+                                                                    MySQL
+                                                                </option>
+                                                                <option class="bx--select-option" value="db2">
+                                                                    Db2
+                                                                </option>
+                                                            </select>
+                                                            <svg focusable="false" preserveAspectRatio="xMidYMid meet"
+                                                                style="will-change: transform;"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                class="bx--select__arrow" width="16" height="16"
+                                                                viewBox="0 0 16 16" aria-hidden="true">
+                                                                <path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                        </div>
+
+                                        <div class="bx--col-lg-4">
+                                            <div class="bx--form-item">
+                                                <label for="dbName" class="bx--label">Database Name</label>
+                                                <input id="dbName" type="name" class="bx--text-input"
+                                                    placeholder="ex: records" required>
+                                            </div>
+                                            <br>
+                                        </div>
+                                        <div class="bx--col-lg-4">
+                                            <div class="bx--form-item">
+                                                <label for="username" class="bx--label">Database Username</label>
+                                                <input id="username" type="text" class="bx--text-input"
+                                                    placeholder="ex: postgres" required>
+                                            </div>
+                                            <br>
+                                        </div>
+                                        <div class="bx--col-lg-4">
+                                            <div class="bx--form-item">
+                                                <label for="password" class="bx--label">Database Password</label>
+                                                <input id="password" type="password" class="bx--text-input"
+                                                    placeholder="" required>
+                                            </div>
+                                            <br>
+                                        </div>
+
+                                        <div class="bx--col-lg-4">
+                                            <div class="bx--form-item">
+                                                <label for="hostname" class="bx--label">Database Hostname</label>
+                                                <input id="hostname" type="text" class="bx--text-input"
+                                                    placeholder="ex: 172.21.182.92" required>
+                                            </div>
+                                            <br>
+                                        </div>
+                                        <div class="bx--col-lg-4">
+                                            <div class="bx--form-item">
+                                                <label for="port" class="bx--label">Database Port</label>
+                                                <input id="port" type="text" class="bx--text-input"
+                                                    placeholder="ex: 5432" required>
+                                            </div>
+                                            <br>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bx--modal-content--overflow-indicator"></div>
+
+                                <div class="bx--modal-footer">
+                                    <button class="bx--btn bx--btn--secondary" type="button"
+                                        data-modal-close>Cancel</button>
+                                    <button class="bx--btn bx--btn--primary" id="submitConnButton" type="button"
+                                        data-modal-close>Submit</button>
+                                </div>
+                            </div>
+                            <!-- Note: focusable span allows for focus wrap feature within Modals -->
+                            <span tabindex="0"></span>
+                        </div>
+
+                        <!-- END MODAL -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://unpkg.com/carbon-components/scripts/carbon-components.min.js"></script>
+<script src="../static/js/script.js"></script>
+<script>
+    createTable();
+</script>
+
+</html>
