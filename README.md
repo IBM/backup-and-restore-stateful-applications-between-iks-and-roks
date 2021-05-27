@@ -1,5 +1,5 @@
 
-# Migrate a n-tier stateful application from IBM Kubernetes service to Red Hat OpenShift
+# Backup and restore stateful applications between Kubernetes and OpenShift
 
 Robin Cloud Native Storage is an application-aware container storage that offers advanced data management capabilities and runs natively on any Kubernetes distribution including IBM Kubernetes Service and Red Hat OpenShift Kubernetes Service. Robin Cloud Native Storage enables you to Protect (via Snapshots, Backups), Secure (via encryption), Collaborate (via Clones and git like push/pull workflows), and make Portable (via Cloud-sync) any Stateful application that is deployed using Helm Charts or Operators.
 
@@ -36,124 +36,20 @@ Comming Soon.
 
 # Steps
 
-1. [Clone the Repo](#step-1-clone-the-repo)
-1. [Create Object Storage](#step-2-create-object-storage)
-1. [Prepare Source cluster for migration (Kubernetes)](#step-3-prepare-source-cluster-for-migration-kubernetes)
-1. [Prepare Target cluster for restoration (OpenShift)](#step-4-prepare-target-cluster-for-restoration-openshift)
-1. [(Optional) Simulate Catastrophic Failure and Recover from it](#step-5-optional-simulate-catastrophic-failure-and-recover-from-it)
+1. [Setup applications on Kubernetes to simulate existing environment](#step-1-setup-applications-on-kubernetes-to-simulate-existing-environment)
+1. [Backup stateful application](#step-2-backup-stateful-application)
+1. [Restore the backed-up stateful application on OpenShift](#step-3-restore-the-backed-up-stateful-application-on-openshift)
+1. [Verify the restored Stateful Application](#4-verify-the-restored-stateful-application)
+1. [(Optional) Simulate catastrophic failure and recover from it](#step-5-optional-simulate-catastrophic-failure-and-recover-from-it)
 
-### Step 1: Clone the Repo
+## Step 1: Setup applications on Kubernetes to simulate existing environment
+
+> In this step you will deploy a stateful application on Kubernetes cluster. If you already have a stateful application deployed, then you may skip this step and proceed with [step 2](#step-2-backup-stateful-application)
+### 1. Clone the Repo
 - Clone the `migrate-kube-opensift-robin` repo locally. In a terminal, run:
 ```bash
 git clone https://github.com/IBM/migrate-kube-opensift-robin.git
 ```
-
-### Step 2: Create Object Storage
-- Login to IBM Cloud, and create a Cloud [Object Storage](https://cloud.ibm.com/objectstorage/create). Select the **Standard** plan and click on **Create**.
-![](doc/source/images/create-cos.png)
-
-- Once the Cloud Object Storage is created, in the IBM Cloud Resources, select the Object Storage.
-
-- You will have to copy certain credentials in order to register Robin CNS to the Object Storage.
-
-- Click on the **Endpoints** on the left panel and select **resiliency** and **location** in which you wish to create an Object Storage Bucket. Copy the public `endpoint` from the location as shown. In our case we selected the `ap-geo` endpoint.
-![](doc/source/images/endpoints.png)
-
-- Click on the **Service credentials** on the left panel and click on **New credentials**.
-
-- While creating a new credential, under the **Advance options** ensure that you turn on the **Include HMAC Credential**. Click on **Add** to create a credential.
-![](doc/source/images/includehmac.png)
-
-- Once the credential is created, under **cos_hmac_keys** copy the `access_key_id` and `secret_access_key` from the credentials as shown.
-![](doc/source/images/cos-creds.png)
-
-- In the parent directory of the cloned repo, add the copied `access_key_id`, `secret_access_key` and `endpoint` to the [`credentials.json`](credentials.json) file.
-    ```json
-    {
-        "aws_access_key_id" : "<access_key_id>",
-        "aws_secret_access_key" : "<secret_access_key>",
-        "end_point": "<endpoint>"
-    }
-    ```
-
-- At this point you have successfully:
-    - Created a Cloud Object Storage and copied the credentials required for the further setup
-
-
-**NOTE:** The further documentation is divided into two setups. ***Prepare Source cluster for migration*** and ***Prepare Target cluster for restoration***. Prepare Source cluster for migration consists of the steps to be followed on the source cluster which is Kubernetes and the Prepare Target cluster for restoration consists of the steps to be followed on the target cluster which is OpenShift. 
-
-## Step 3: Prepare Source cluster for migration (Kubernetes)
-
-1. [Register a Repo in Kubernetes](#1-register-a-repo-in-kubernetes)
-1. [Setup Postgresql](#2-setup-postgresql)
-    - 2.1. [Install Postgresql](#21-install-postgresql)
-    - 2.2. [Configure Postgresql](#22-configure-postgresql)
-1. [Setup Client Application](#3-setup-client-application)
-    - 3.1. [Install Client Application](#31-install-client-application)
-    - 3.2. [Configure Client Application](#32-configure-client-application)
-1. [Create a FlexApplication in Robin CNS](#4-create-a-flexapplication-in-robin-cns)
-1. [Attach the FlexApp to the Repo](#5-attach-the-flexapp-to-the-repo)
-1. [Run the script to create a Snapshot, Backup and Export it](#6-run-the-script-to-create-a-snapshot-backup-and-export-it)
-
-
->Note: Before you proceed with the documentation, make sure you have logged into the Kubernetes cluster from you CLI. You will have already learned how to connect to your cluster through kubectl command in the [Robin Installation Tutorial](../install-robin-cns-on-iks-and-roks/).
-
-### 1. Register a Repo in Kubernetes
-A Cloud Object Storage is required to backup the stateful application snapshot from Kubernetes cluster to Object Storage. Furthermore, the same backup will be decrypted and restored on the OpenShift cluster. Since you will have already created a Cloud Object storage in [Step 2](#step-2-create-object-storage) and saved the credentials, you can now register it on Robin.
-
-- In terminal, access the Robin Client through the pod which you have learn't in the [Robin Installation Tutorial](../install-robin-cns-on-iks-and-roks/).
-    ```bash
-    $ kubectl exec -it robin-85pnq -n robinio -- bash
-    ```
-    ```
-    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]#
-    ```
-
-- In terminal, under the robin prompt, run the `robin login` command with default username as `admin` and password as `Robin123`:
-    ```
-    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]# robin login admin
-    Password: 
-    User admin is logged into Administrators tenant
-    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]#
-    ```
-
-- Copy the [`credentials.json`](credentials.json) that you prepared in [Step 2](#step-2-create-object-storage) into the client pod. You can do so with `vi` editor on the client pod. In terminal, run the following command:
-    ```
-    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]# vi credentials.json
-    ```
-- Copy and paste the entire json in the vi editor and hit the `ESC` key then `:wq` and press enter to save the file.
-    ```json
-    {
-        "aws_access_key_id" : "xxxx",
-        "aws_secret_access_key" : "xxxx",
-        "end_point": "s3.xxxx.cloud-object-storage.appdomain.cloud"
-    }
-    ```
-- Now once you have the credentials in place, run the robin repo register command. In terminal, run the following command:
-    ```
-    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]# robin repo register psqlbackups s3://robin-backup-bucket/psqlbackups credentials.json readwrite --wait
-    ```
-
-    >NOTE: The string `s3://robin-backup-bucket/psqlbackups` indicates `s3|gcs://bucket[/path/to/folder]`. `psqlbackups` is the bucket that will be created in Object Storage. You can learn more about the `robin repo register` command in the [docs here](https://docs.robin.io/storage/latest/repo.html#register-a-repo).
-
-- You have successfully registered the repo with robin, verify it by running the following command:
-    ```
-    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]# robin repo list
-    ```
-    ```
-    +-------------+--------+----------------------+--------------+---------------------+---------------+-------------+
-    | Name        | Type   | Owner/Tenant         | BackupTarget | Bucket              | Path          | Permissions |
-    +-------------+--------+----------------------+--------------+---------------------+---------------+-------------+
-    | psqlbackups | AWS_S3 | admin/Administrators | 1            | robin-backup-bucket | psqlbackups/ | readwrite   |
-    +-------------+--------+----------------------+--------------+---------------------+---------------+-------------+
-    ```
-
-- You can exit the robin client by running the following command:
-    ```
-    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]# exit
-
-    $
-    ```
 
 ### 2. Setup Postgresql
 Once you have registered the repo you can go ahead and deploy a n-tier application which includes a client application and a database. In this section you will learn how to deploy postgresql database on kubernetes through helm charts.
@@ -261,8 +157,95 @@ Similarly, deploy the client application to access the postgresql database and p
 - Once you have populated the database table, you can migrate the n-tier application to OpenShift.
 ![](doc/source/images/finalclient.png)
 
-### 4. Create a FlexApplication in Robin CNS
-Since you have a database and a client application deployed in the Kubernetes cluster, you can package them into a Robin FlexApp and take a snapshot. By packaging multiple deployments into once single FlexApp, it becomes easier to migrate everything together rather than migrating individual deployments.
+
+## Step 2: Backup stateful application
+
+### 1. Create Object Storage
+- Login to IBM Cloud, and create a Cloud [Object Storage](https://cloud.ibm.com/objectstorage/create). Select the **Standard** plan and click on **Create**.
+![](doc/source/images/create-cos.png)
+
+- Once the Cloud Object Storage is created, in the IBM Cloud Resources, select the Object Storage.
+
+- You will have to copy certain credentials in order to register Robin CNS to the Object Storage.
+
+- Click on the **Endpoints** on the left panel and select **resiliency** and **location** in which you wish to create an Object Storage Bucket. Copy the public `endpoint` from the location as shown. In our case we selected the `ap-geo` endpoint.
+![](doc/source/images/endpoints.png)
+
+- Click on the **Service credentials** on the left panel and click on **New credentials**.
+
+- While creating a new credential, under the **Advance options** ensure that you turn on the **Include HMAC Credential**. Click on **Add** to create a credential.
+![](doc/source/images/includehmac.png)
+
+- Once the credential is created, under **cos_hmac_keys** copy the `access_key_id` and `secret_access_key` from the credentials as shown.
+![](doc/source/images/cos-creds.png)
+
+- In the parent directory of the cloned repo, add the copied `access_key_id`, `secret_access_key` and `endpoint` to the [`credentials.json`](credentials.json) file.
+    ```json
+    {
+        "aws_access_key_id" : "<access_key_id>",
+        "aws_secret_access_key" : "<secret_access_key>",
+        "end_point": "<endpoint>"
+    }
+    ```
+
+- At this point you have successfully:
+    - Created a Cloud Object Storage and copied the credentials required for the further setup
+
+### 2. Register a Repo in Kubernetes
+>Note: Before you proceed with the documentation, make sure you have logged into the Kubernetes cluster from your CLI. You will have already learned how to connect to your cluster through kubectl command in the [Robin Installation Tutorial](../install-robin-cns-on-iks-and-roks/).
+
+A Cloud Object Storage is required to backup the stateful application snapshot from Kubernetes cluster to Object Storage. Furthermore, the same backup will be decrypted and restored on the OpenShift cluster. Since you will have already created a Cloud Object storage in [Step 2](#step-2-create-object-storage) and saved the credentials, you can now register it on Robin.
+
+- In terminal, access the Robin Client through the pod which you have learn't in the [Robin Installation Tutorial](../install-robin-cns-on-iks-and-roks/).
+    ```bash
+    $ kubectl exec -it robin-85pnq -n robinio -- bash
+    ```
+    ```
+    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]#
+    ```
+
+- In terminal, under the robin prompt, run the `robin login` command with default username as `admin` and password as `Robin123`:
+    ```
+    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]# robin login admin
+    Password: 
+    User admin is logged into Administrators tenant
+    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]#
+    ```
+
+- Copy the [`credentials.json`](credentials.json) that you prepared in [Step 2](#step-2-create-object-storage) into the client pod. You can do so with `vi` editor on the client pod. In terminal, run the following command:
+    ```
+    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]# vi credentials.json
+    ```
+- Copy and paste the entire json in the vi editor and hit the `ESC` key then `:wq` and press enter to save the file.
+    ```json
+    {
+        "aws_access_key_id" : "xxxx",
+        "aws_secret_access_key" : "xxxx",
+        "end_point": "s3.xxxx.cloud-object-storage.appdomain.cloud"
+    }
+    ```
+- Now once you have the credentials in place, run the robin repo register command. In terminal, run the following command:
+    ```
+    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]# robin repo register psqlbackups s3://robin-backup-bucket/psqlbackups credentials.json readwrite --wait
+    ```
+
+    >NOTE: The string `s3://robin-backup-bucket/psqlbackups` indicates `s3|gcs://bucket[/path/to/folder]`. `psqlbackups` is the bucket that will be created in Object Storage. You can learn more about the `robin repo register` command in the [docs here](https://docs.robin.io/storage/latest/repo.html#register-a-repo).
+
+- You have successfully registered the repo with robin, verify it by running the following command:
+    ```
+    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]# robin repo list
+    ```
+    ```
+    +-------------+--------+----------------------+--------------+---------------------+---------------+-------------+
+    | Name        | Type   | Owner/Tenant         | BackupTarget | Bucket              | Path          | Permissions |
+    +-------------+--------+----------------------+--------------+---------------------+---------------+-------------+
+    | psqlbackups | AWS_S3 | admin/Administrators | 1            | robin-backup-bucket | psqlbackups/ | readwrite   |
+    +-------------+--------+----------------------+--------------+---------------------+---------------+-------------+
+    ```
+
+### 3. Create a FlexApplication in Robin CNS
+
+If you have followed [step 1](#step-1-setup-applications-on-kubernetes-to-simulate-existing-environment) you will have a database and a client application deployed in Kubernetes cluster. If you have not followed step 1 and you have your own application, then you will have to replace application names accordingly. In this step you will learn how to package multiple applications into a Robin FlexApp and take a snapshot. By packaging multiple deployments into once single FlexApp, it becomes easier to migrate everything together rather than migrating individual deployments.
 
 - In terminal, access the Robin Client through the pod which you have learn't in the [Robin Installation Tutorial](../install-robin-cns-on-iks-and-roks/).
     ```bash
@@ -342,7 +325,7 @@ Since you have a database and a client application deployed in the Kubernetes cl
 
 - You can now create a snapshot, and backup to Object storage.
 
-### 5. Attach the FlexApp to the Repo
+### 4. Attach the FlexApp to the Repo
 In order to take a backup in Object storage, you will have to attach your FlexApp to the Repo that you registered in [step 2](#step-2-create-object-storage).
 
 - Run the following command to attach `emp-mgmt` to the `psqlbackups` bucket
@@ -351,7 +334,7 @@ In order to take a backup in Object storage, you will have to attach your FlexAp
 ```
 - Once the Job is finished `emp-mgmt` will be linked to the `psqlbackups` bucket in the Cloud Object Storage.
 
-### 6. Run the script to create a Snapshot, Backup and Export it
+### 5. Run the script to create a Snapshot, Backup and Export it
 The automated script basically runs a set of Robin commands to perform the following tasks:
 - Create a Snapshot of the App
 - Create a Backup of the Snapshot and store it in Cloud Object Storage
@@ -416,15 +399,15 @@ In the parent directory of the cloned repo, goto `scripts/` directory. You will 
     - [`robin snapshot`](https://docs.robin.io/storage/latest/snapshot.html)
     - [`robin backup`](https://docs.robin.io/storage/latest/backup.html)
 
----
 
-## Step 4: Prepare Target cluster for restoration (OpenShift)
+- You can exit the robin client by running the following command:
+    ```
+    [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]# exit
 
-1. [Create a project](#1-create-a-project)
-1. [Register a Repo in OpenShift](#2-register-a-repo-in-openshift)
-1. [Run the script to decrypt the Backup, and create a FlexApp from it](#3-run-the-script-to-decrypt-the-backup-and-create-a-flexapp-from-it)
-1. [Verify the restored Stateful Application](#4-verify-the-restored-stateful-application)
+    $
+    ```
 
+## Step 3: Restore the backed-up stateful application on OpenShift
 
 ### 1. Create a project
 Before you begin with the restoration, you will have to create an OpenShift project. In terminal, run the following command:
@@ -664,6 +647,7 @@ This section shows how you can recover your stateful application if there is any
 
 - Now visit the client application, do note that you will have to reconnect the client application to the database with the credentials obtained in [3. Run the script to decrypt the Backup, and create a FlexApp from it](#3-run-the-script-to-decrypt-the-backup-and-create-a-flexapp-from-it). Once reconnected you will see the data restored.
 ![](doc/source/images/finalclient2.png)
+
 
 ## Summary
 In this code pattern we used Robin CNS to take snapshot/backup of an n-tier stateful application running on Kubernetes. We restored the backed up application on to OpenShift. We verified that the stateful application is moved with all the right data. As a next step, you can explore [other features](https://docs.robin.io/storage/5.3.4/) provided by Robin
