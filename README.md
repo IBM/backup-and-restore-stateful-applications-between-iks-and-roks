@@ -1,5 +1,5 @@
 
-# Migrate a n-tier stateful application from IBM Kubernetes service to Red Hat OpenShift
+# Backup and restore stateful applications between Kubernetes and OpenShift
 
 Robin Cloud Native Storage is an application-aware container storage that offers advanced data management capabilities and runs natively on any Kubernetes distribution including IBM Kubernetes Service and Red Hat OpenShift Kubernetes Service. Robin Cloud Native Storage enables you to Protect (via Snapshots, Backups), Secure (via encryption), Collaborate (via Clones and git like push/pull workflows), and make Portable (via Cloud-sync) any Stateful application that is deployed using Helm Charts or Operators.
 
@@ -36,15 +36,15 @@ Comming Soon.
 
 # Steps
 
-1. [Setup applications on Kubernetes to simulate existing environment](#Setup applications on Kubernetes to simulate existing environment)
-1. [Backup stateful application](#step-2-create-object-storage)
-1. [Restore the backed-up stateful application on OpenShift](#step-3-prepare-source-cluster-for-migration-kubernetes)
-1. [Verify the restored Stateful Application](#step-4-prepare-target-cluster-for-restoration-openshift)
+1. [Setup applications on Kubernetes to simulate existing environment](#step-1-setup-applications-on-kubernetes-to-simulate-existing-environment)
+1. [Backup stateful application](#step-2-backup-stateful-application)
+1. [Restore the backed-up stateful application on OpenShift](#step-3-restore-the-backed-up-stateful-application-on-openshift)
+1. [Verify the restored Stateful Application](#4-verify-the-restored-stateful-application)
 1. [(Optional) Simulate catastrophic failure and recover from it](#step-5-optional-simulate-catastrophic-failure-and-recover-from-it)
 
 ## Step 1: Setup applications on Kubernetes to simulate existing environment
 
->> In this step you will deploy a stateful application on Kubernetes cluster. If you already have a stateful application deployed, then you may skip this step and proceed with [step 2 - TODO]()
+>> In this step you will deploy a stateful application on Kubernetes cluster. If you already have a stateful application deployed, then you may skip this step and proceed with [step 2](#step-2-backup-stateful-application)
 ### 1. Clone the Repo
 - Clone the `migrate-kube-opensift-robin` repo locally. In a terminal, run:
 ```bash
@@ -245,7 +245,7 @@ A Cloud Object Storage is required to backup the stateful application snapshot f
 
 ### 3. Create a FlexApplication in Robin CNS
 
-If you have followed step 1 you will have a database and a client application deployed in Kubernetes cluster. If you have not followed step 1 and you have your own application, then you will have to replace application names accordingly. In this step you will learn how to package multiple applications into a Robin FlexApp and take a snapshot. By packaging multiple deployments into once single FlexApp, it becomes easier to migrate everything together rather than migrating individual deployments.
+If you have followed [step 1](#step-1-setup-applications-on-kubernetes-to-simulate-existing-environment) you will have a database and a client application deployed in Kubernetes cluster. If you have not followed step 1 and you have your own application, then you will have to replace application names accordingly. In this step you will learn how to package multiple applications into a Robin FlexApp and take a snapshot. By packaging multiple deployments into once single FlexApp, it becomes easier to migrate everything together rather than migrating individual deployments.
 
 - In terminal, access the Robin Client through the pod which you have learn't in the [Robin Installation Tutorial](../install-robin-cns-on-iks-and-roks/).
     ```bash
