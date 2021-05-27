@@ -44,7 +44,7 @@ Comming Soon.
 
 ## Step 1: Setup applications on Kubernetes to simulate existing environment
 
->> In this step you will deploy a stateful application on Kubernetes cluster. If you already have a stateful application deployed, then you may skip this step and proceed with [step 2](#step-2-backup-stateful-application)
+> In this step you will deploy a stateful application on Kubernetes cluster. If you already have a stateful application deployed, then you may skip this step and proceed with [step 2](#step-2-backup-stateful-application)
 ### 1. Clone the Repo
 - Clone the `migrate-kube-opensift-robin` repo locally. In a terminal, run:
 ```bash
