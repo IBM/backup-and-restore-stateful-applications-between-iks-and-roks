@@ -31,7 +31,7 @@ When you have completed this code pattern, you will understand how to:
 Comming Soon.
 
 # Prerequisites
-- [Robin Installation Tutorial](../install-robin-cns-on-iks-and-roks/): Follow the tutorial and setup robin Cloud Native Storage on Kubernetes and OpenShift.
+- [Robin Installation Tutorial](https://github.com/IBM/setup-robin-cns): Follow the tutorial and setup robin Cloud Native Storage on Kubernetes and OpenShift.
 - [Helm CLI](https://helm.sh/docs/intro/install/#from-script): Download and install the Helm CLI.
 
 # Steps
