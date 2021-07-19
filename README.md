@@ -46,9 +46,9 @@ Comming Soon.
 
 > In this step you will deploy a stateful application on Kubernetes cluster. If you already have a stateful application deployed, then you may skip this step and proceed with [step 2](#step-2-backup-stateful-application)
 ### 1. Clone the Repo
-- Clone the `migrate-kube-opensift-robin` repo locally. In a terminal, run:
+- Clone the `backup-and-restore-stateful-applications-between-iks-and-roks` repo locally. In a terminal, run:
 ```bash
-git clone https://github.com/IBM/migrate-kube-opensift-robin.git
+git clone https://github.com/IBM/backup-and-restore-stateful-applications-between-iks-and-roks.git
 ```
 
 ### 2. Setup Postgresql
