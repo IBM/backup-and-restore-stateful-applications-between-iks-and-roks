@@ -58,8 +58,8 @@ Once you have registered the repo you can go ahead and deploy a n-tier applicati
 
 - In terminal, run the following command to install postgresql:
     ```bash
-    $ helm repo add bitnami https://charts.bitnami.com/bitnami
-    $ helm install t3-db bitnami/postgresql --set persistence.storageClass=robin -n demo
+    helm repo add bitnami https://charts.bitnami.com/bitnami
+    helm install t3-db bitnami/postgresql --set persistence.storageClass=robin -n demo
     ```
     ```
     NAME: t3-db
@@ -78,12 +78,12 @@ Once you have registered the repo you can go ahead and deploy a n-tier applicati
 - You will need the postgresql username, password, hostname and port to connect it to the client application. In terminal, run the following commands to get the password and ip address.
     - Run the following command to get the `IP_ADDRESS`:
         ```bash
-        $ export IP_ADDRESS=$(kubectl get service -n demo t3-db-postgresql -o jsonpath={.spec.clusterIP}) && echo $IP_ADDRESS
+        export IP_ADDRESS=$(kubectl get service -n demo t3-db-postgresql -o jsonpath={.spec.clusterIP}) && echo $IP_ADDRESS
         ```
 
     - Run the following command to get the `POSTGRES_PASSWORD`:
         ```bash
-        $ export POSTGRES_PASSWORD=$(kubectl get secret --namespace demo t3-db-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode) && echo $POSTGRES_PASSWORD
+        export POSTGRES_PASSWORD=$(kubectl get secret --namespace demo t3-db-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode) && echo $POSTGRES_PASSWORD
         ```
 
 - At this point, you will have the Postgresql credentials as follows:
@@ -96,7 +96,7 @@ Once you have registered the repo you can go ahead and deploy a n-tier applicati
 
 - Once you have the credentials, connect to the postgres-client and create a database named `records` that will be used by the client application to store data. In terminal, run the following command:
     ```bash
-    $ kubectl run t3-db-postgresql-client --rm --tty -i --restart='Never' --namespace demo --image docker.io/bitnami/postgresql:11.11.0-debian-10-r71 --env="PGPASSWORD=$POSTGRES_PASSWORD" --command -- psql --host t3-db-postgresql -U postgres -d postgres -p 5432
+    kubectl run t3-db-postgresql-client --rm --tty -i --restart='Never' --namespace demo --image docker.io/bitnami/postgresql:11.11.0-debian-10-r71 --env="PGPASSWORD=$POSTGRES_PASSWORD" --command -- psql --host t3-db-postgresql -U postgres -d postgres -p 5432
     ```
 
     >Note: The default username for Postgresql is `postgres` and the default port is `5432`.
@@ -104,6 +104,7 @@ Once you have registered the repo you can go ahead and deploy a n-tier applicati
 - You will enter the postgres prompt, run the `create` command to create a database.
     ```
     postgres=# create database records;
+    CREATE DATABASE
     postgres-# 
     ```
 - You can exit the postgres-client by running the `exit` command.
@@ -119,8 +120,8 @@ Similarly, deploy the client application to access the postgresql database and p
 
 - In the cloned directory, navigate to `client-application/helm-chart/` directory and run the `helm install` command.
     ```bash
-    $ cd client-application/helm-chart/
-    $ helm install -n demo t3-client .
+    cd client-application/helm-chart/
+    helm install -n demo t3-client .
     ```
 
 #### 3.2: Configure Client Application
@@ -128,7 +129,7 @@ Similarly, deploy the client application to access the postgresql database and p
 - Once the client application is installed, access it by port forwarding. In terminal, run the following commands:
     - Get the pod name:
         ```bash
-        $ kubectl get pods -n demo
+        kubectl get pods -n demo
         ```
         ```
         NAME                                    READY   STATUS    RESTARTS   AGE
@@ -137,7 +138,7 @@ Similarly, deploy the client application to access the postgresql database and p
         ```
     - Port forward the pod:
         ```bash
-        $ kubectl port-forward t3-client-deployment-789f9f54fb-5tlhn 8080 -n demo
+        kubectl port-forward t3-client-deployment-789f9f54fb-5tlhn 8080 -n demo
         ```
         ```
         Forwarding from 127.0.0.1:8080 -> 8080
@@ -198,7 +199,7 @@ A Cloud Object Storage is required to backup the stateful application snapshot f
 
 - In terminal, access the Robin Client through the pod which you have learn't in the [Robin Installation Tutorial](../install-robin-cns-on-iks-and-roks/).
     ```bash
-    $ kubectl exec -it robin-85pnq -n robinio -- bash
+    kubectl exec -it robin-85pnq -n robinio -- bash
     ```
     ```
     [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]#
@@ -249,7 +250,7 @@ If you have followed [step 1](#step-1-setup-applications-on-kubernetes-to-simula
 
 - In terminal, access the Robin Client through the pod which you have learn't in the [Robin Installation Tutorial](../install-robin-cns-on-iks-and-roks/).
     ```bash
-    $ kubectl exec -it robin-85pnq -n robinio -- bash
+    kubectl exec -it robin-85pnq -n robinio -- bash
     ```
     ```
     [robinds@kube-c1ima1bd0o105lencd5g-robiniooscl-default-0000029e ~]#
@@ -412,8 +413,8 @@ In the parent directory of the cloned repo, goto `scripts/` directory. You will 
 ### 1. Create a project
 Before you begin with the restoration, you will have to create an OpenShift project. In terminal, run the following command:
 ```bash
-$ oc new-project demo
-$ oc project demo
+oc new-project demo
+oc project demo
 ```
 
 >Note: You need to be connected to the OpenShift cluster through your terminal for the `oc` commands to work. You will have learn't how to connect in the [Robin Installation Tutorial](../install-robin-cns-on-iks-and-roks/).
@@ -424,7 +425,7 @@ You will be restoring the stateful application from the Cloud Object Storage. Si
 
 - In terminal, access the Robin Client through the pod which you have learn't in the [Robin Installation Tutorial](../install-robin-cns-on-iks-and-roks/).
     ```bash
-    $ kubectl exec -it robin-9aPnq -n robinio -- bash
+    kubectl exec -it robin-9aPnq -n robinio -- bash
     ```
     ```
     [robinds@kube-c1ima1bd0o105lencd5g-robinioopenshiftcl-default-0000029e ~]#
@@ -570,8 +571,8 @@ Now that the n-tier Application is migrated to OpenShift, you can verify the app
 - To create a route in OpenShift, run the following commands:
     - Get the service name:
         ```bash
-        $ oc project demo
-        $ oc get svc
+        oc project demo
+        oc get svc
         ```
         ```
         NAME                                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
@@ -581,14 +582,14 @@ Now that the n-tier Application is migrated to OpenShift, you can verify the app
         ```
     - Run the expose command:
         ```bash
-        $ oc expose svc/emp-mgmt-t3-client-service
+        oc expose svc/emp-mgmt-t3-client-service
         ```
         ```
         route.route.openshift.io/emp-mgmt-t3-client-service exposed
         ```
     - Get the route:
         ```bash
-        $ oc get route
+        oc get route
         ```
         ```
         NAME                         HOST/PORT                                                                                                                      PATH   SERVICES                     PORT   TERMINATION   WILDCARD
