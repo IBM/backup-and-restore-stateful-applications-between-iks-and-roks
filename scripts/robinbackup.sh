@@ -21,7 +21,7 @@ echo
 SNAPID=$(echo `robin snapshot list --app $appname | grep $snapname | cut -c 3-34`)
 echo "2/3: Backing up $SNAPID"
 echo
-robin backup create $appname $reponame --snapshotid $SNAPID --backupname $backupname --wait && echo && robin backup list --app emp-mgmt
+robin backup create $appname $reponame --snapshotid $SNAPID --backupname $backupname --wait && echo && robin backup list --app $appname
 echo
 echo "3/3: Exporting Backup"
 echo
