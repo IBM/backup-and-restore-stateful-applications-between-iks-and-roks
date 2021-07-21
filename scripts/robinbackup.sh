@@ -16,7 +16,7 @@ done
 echo
 echo "1/3: Creating a snapshot of $appname"
 echo
-robin snapshot create $appname --snapname $snapname --desc "this snapshot is created automatically with shell script" --wait && echo && robin snapshot list --app emp-mgmt
+robin snapshot create $appname --snapname $snapname --desc "this snapshot is created automatically with shell script" --wait && echo && robin snapshot list --app $appname
 echo
 SNAPID=$(echo `robin snapshot list --app $appname | grep $snapname | cut -c 3-34`)
 echo "2/3: Backing up $SNAPID"
